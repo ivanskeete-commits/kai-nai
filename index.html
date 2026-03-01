@@ -37,7 +37,7 @@
 
     <div class="header">
         <div id="grade">D</div>
-        <div id="pt-subtitle">FLT: 0/0 | LAY: 0/0 | COMM: 0 | MA: 0</div>
+        <div id="pt-subtitle">FLT: 0/0 | LAY: 0/0 | DEF COMM: 0 | MA: 0</div>
     </div>
 
     <div class="stat-bar">
@@ -88,7 +88,7 @@
     <div style="display: flex; gap: 10px; padding: 10px;">
         <button style="flex:1;" onclick="undo()">UNDO</button>
         <button style="flex:1; background: #34c759; color: #000;" onclick="save()">SAVE GAME</button>
-        <button style="flex:1;" onclick="reset()">RESET</button>
+        <button style="flex:1;" onclick="confirmReset()">RESET</button>
     </div>
 
     <div id="h-list"></div>
@@ -132,7 +132,7 @@
         }
 
         function refresh() {
-            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt}/${data.flt + data.flt_x} | LAY: ${data.lay}/${data.lay + data.lay_x} | COMM: ${data.comm} | MA: ${data.ma}`;
+            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt}/${data.flt + data.flt_x} | LAY: ${data.lay}/${data.lay + data.lay_x} | DEF COMM: ${data.comm} | MA: ${data.ma}`;
             document.getElementById('s-pts').innerText = data.pts;
             document.getElementById('s-ast').innerText = data.ast;
             document.getElementById('s-reb').innerText = data.reb;
@@ -182,35 +182,35 @@
                 lay: `${data.lay}/${data.lay + data.lay_x}`,
                 comm: data.comm, ma: data.ma
             };
-            var list = JSON.parse(localStorage.getItem('season_stats_v3') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
             list.unshift(game);
-            localStorage.setItem('season_stats_v3', JSON.stringify(list));
+            localStorage.setItem('season_stats_v6', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function deleteGame(index) {
             if (confirm("Are you sure you want to delete this game record?")) {
-                var list = JSON.parse(localStorage.getItem('season_stats_v3') || "[]");
+                var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
                 list.splice(index, 1);
-                localStorage.setItem('season_stats_v3', JSON.stringify(list));
+                localStorage.setItem('season_stats_v6', JSON.stringify(list));
                 showHistory();
             }
         }
 
         function copyGame(index) {
-            var list = JSON.parse(localStorage.getItem('season_stats_v3') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
             var i = list[index];
             var text = `${i.d} vs ${i.opp}\n` +
                        `PTS: ${i.pts}, AST: ${i.ast}, REB: ${i.reb}, STL: ${i.stl}, BLK: ${i.blk}, TO: ${i.to}\n` +
                        `FG: ${i.fg}, 3PT: ${i.tp}, FT: ${i.ft}\n` +
-                       `Layups: ${i.lay}, Floaters: ${i.flt}, Communication: ${i.comm}, Missed Asgn: ${i.ma}\n` +
+                       `Layups: ${i.lay}, Floaters: ${i.flt}, Defensive Communication: ${i.comm}, Missed Assignments: ${i.ma}\n` +
                        `Result: ${i.wl}, Score: ${i.sc}, Grade: ${i.g}`;
             navigator.clipboard.writeText(text).then(() => { alert("Stats Copied!"); });
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('season_stats_v3') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
             document.getElementById('h-list').innerHTML = list.map((i, idx) => `
                 <div class="history-card">
                     <button class="copy-btn" onclick="copyGame(${idx})">COPY</button>
@@ -218,9 +218,15 @@
                     <span class="h-date">${i.d} vs ${i.opp}</span><br>
                     <span class="h-line">PTS: ${i.pts}, AST: ${i.ast}, REB: ${i.reb}, STL: ${i.stl}, BLK: ${i.blk}, TO: ${i.to}</span>
                     <span class="h-line">FG: ${i.fg} | 3PT: ${i.tp} | FT: ${i.ft}</span>
-                    <span class="h-line">Layups: ${i.lay}, Floaters: ${i.flt}, Comm: ${i.comm}, MA: ${i.ma}</span>
+                    <span class="h-line">Layups: ${i.lay}, Floaters: ${i.flt}, Defensive Communication: ${i.comm}, Missed Assignments: ${i.ma}</span>
                     <span class="h-result ${i.wl === 'WIN' ? 'win' : 'loss'}">${i.wl} | SCORE: ${i.sc} | GRADE: ${i.g}</span>
                 </div>`).join('');
+        }
+
+        function confirmReset() {
+            if (confirm("Clear all current stats? (This will not affect saved history)")) {
+                reset();
+            }
         }
 
         function reset() {
