@@ -6,12 +6,12 @@
         body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         .header { background: #1a1a1a; padding: 15px; border-bottom: 2px solid #333; }
         #grade { font-size: 70px; font-weight: bold; color: orange; margin: 0; line-height: 1; }
-        #pt-subtitle { font-size: 14px; color: #ff9500; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
+        #pt-subtitle { font-size: 13px; color: #ff9500; font-weight: bold; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-bar { display: grid; grid-template-columns: repeat(6, 1fr); background: #222; margin: 10px; padding: 10px; border-radius: 10px; font-size: 9px; }
         .stat-val { font-size: 16px; font-weight: bold; display: block; color: #007aff; }
         #percent-display { grid-column: span 6; color: #34c759; font-weight: bold; padding-top: 8px; border-top: 1px solid #333; margin-top: 8px; font-size: 10px; display: flex; justify-content: space-around; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        button { padding: 18px 10px; border-radius: 12px; border: none; color: white; font-weight: bold; font-size: 13px; background: #444; }
+        button { padding: 18px 10px; border-radius: 12px; border: none; color: white; font-weight: bold; font-size: 13px; background: #444; cursor: pointer; }
         .btn-green { background: #34c759; }
         .btn-blue { background: #007aff; }
         .btn-red { background: #ff3b30; }
@@ -19,13 +19,22 @@
         .btn-orange { background: #ff9500; color: #000; }
         .focus-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 10px; margin-bottom: 8px; }
         .small-btn { padding: 10px 5px; font-size: 10px; height: 50px; }
+        
+        .game-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 10px; }
+        input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; width: 85%; }
+        
+        .history-card { background: #1a1a1a; border-left: 4px solid orange; margin: 10px; padding: 12px; text-align: left; border-radius: 4px; font-size: 11px; position: relative; }
+        .history-header { font-weight: bold; color: #ff9500; margin-bottom: 5px; display: flex; justify-content: space-between; padding-right: 60px; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: #333; font-size: 9px; padding: 5px 8px; border-radius: 5px; }
+        .win { color: #34c759; }
+        .loss { color: #ff3b30; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div id="grade">D</div>
-        <div id="pt-subtitle">FLT: 0/0 | LAY: 0/0 | COMM: 0</div>
+        <div id="pt-subtitle">FLT: 0/0 | LAY: 0/0 | COMM: 0 | MA: 0</div>
     </div>
 
     <div class="stat-bar">
@@ -67,52 +76,60 @@
         <button class="btn-red" onclick="handle('to', 0, -7)">TURNOVER</button>
     </div>
 
+    <div class="game-info">
+        <input type="text" id="opp" placeholder="Opponent">
+        <input type="text" id="score" placeholder="Final Score">
+        <button id="wl-toggle" style="padding:10px; font-size:11px;" onclick="toggleWL()">W/L: N/A</button>
+    </div>
+
     <div style="display: flex; gap: 10px; padding: 10px;">
         <button style="flex:1;" onclick="undo()">UNDO</button>
-        <button style="flex:1; background: #34c759; color: #000;" onclick="save()">SAVE</button>
+        <button style="flex:1; background: #34c759; color: #000;" onclick="save()">SAVE GAME</button>
         <button style="flex:1;" onclick="reset()">RESET</button>
     </div>
 
-    <div id="h-list" style="text-align: left; padding: 10px; font-size: 12px; color: #888;"></div>
+    <div id="h-list"></div>
 
     <script>
         var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, fta: 0 };
-        var raw = 0;
-        var stack = [];
+        var raw = 0, stack = [], winLoss = "N/A";
+
+        function toggleWL() {
+            var btn = document.getElementById('wl-toggle');
+            if (winLoss === "N/A") winLoss = "WIN";
+            else if (winLoss === "WIN") winLoss = "LOSS";
+            else winLoss = "N/A";
+            btn.innerText = "W/L: " + winLoss;
+        }
 
         function handle(type, ptVal, gradeVal) {
             stack.push({t: type, p: ptVal, g: gradeVal});
             raw += gradeVal;
             data.pts += ptVal;
             if (data.hasOwnProperty(type)) data[type]++;
-            
             if (['flt', 'lay', '2m', '3m'].includes(type)) { data.fgm++; data.fga++; }
             if (['flt_x', 'lay_x', '2x', '3x'].includes(type)) { data.fga++; }
             if (type === '3m') { data.tpm++; data.tpa++; }
             if (type === '3x') { data.tpa++; }
             if (type === 'ftm' || type === 'ftx') { data.fta++; }
-            
             refresh();
         }
 
         function undo() {
             if (stack.length === 0) return;
             var item = stack.pop();
-            raw -= item.g;
-            data.pts -= item.p;
+            raw -= item.g; data.pts -= item.p;
             if (data.hasOwnProperty(item.t)) data[item.t]--;
-            
             if (['flt', 'lay', '2m', '3m'].includes(item.t)) { data.fgm--; data.fga--; }
             if (['flt_x', 'lay_x', '2x', '3x'].includes(item.t)) { data.fga--; }
             if (item.t === '3m') { data.tpm--; data.tpa--; }
             if (item.t === '3x') { data.tpa--; }
             if (item.t === 'ftm' || item.t === 'ftx') { data.fta--; }
-            
             refresh();
         }
 
         function refresh() {
-            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt}/${data.flt + data.flt_x} | LAY: ${data.lay}/${data.lay + data.lay_x} | COMM: ${data.comm}`;
+            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt}/${data.flt + data.flt_x} | LAY: ${data.lay}/${data.lay + data.lay_x} | COMM: ${data.comm} | MA: ${data.ma}`;
             document.getElementById('s-pts').innerText = data.pts;
             document.getElementById('s-ast').innerText = data.ast;
             document.getElementById('s-reb').innerText = data.reb;
@@ -128,7 +145,7 @@
             document.getElementById('p-3p').innerText = `3PT: ${tpPct}% (${data.tpm}/${data.tpa})`;
             document.getElementById('p-ft').innerText = `FT: ${ftPct}% (${data.ftm}/${data.fta})`;
             
-            var g = "D"; var col = "orange";
+            var g = "D", col = "orange";
             if (raw >= 250) { g = "A+"; col = "#32d74b"; }
             else if (raw >= 200) { g = "A"; col = "#32d74b"; }
             else if (raw >= 150) { g = "B"; col = "orange"; }
@@ -138,22 +155,55 @@
         }
 
         function save() {
-            var game = { d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts };
-            var list = JSON.parse(localStorage.getItem('nephew_v10') || "[]");
+            var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
+            var game = {
+                d: new Date().toLocaleDateString(),
+                opp: document.getElementById('opp').value || "N/A",
+                sc: document.getElementById('score').value || "N/A",
+                wl: winLoss,
+                g: document.getElementById('grade').innerText,
+                p: data.pts,
+                ast: data.ast,
+                flt: `${data.flt}/${data.flt + data.flt_x}`,
+                lay: `${data.lay}/${data.lay + data.lay_x}`,
+                comm: data.comm,
+                ma: data.ma,
+                fg: `${fgPct}%`
+            };
+            var list = JSON.parse(localStorage.getItem('nephew_paint_v1') || "[]");
             list.unshift(game);
-            localStorage.setItem('nephew_v10', JSON.stringify(list));
+            localStorage.setItem('nephew_paint_v1', JSON.stringify(list));
             reset();
             showHistory();
         }
 
+        function copyGame(index) {
+            var list = JSON.parse(localStorage.getItem('nephew_paint_v1') || "[]");
+            var i = list[index];
+            var text = `Game Stats: ${i.d}\nOpponent: ${i.opp}\nResult: ${i.wl} (${i.sc})\nGrade: ${i.g}\nPoints: ${i.p}\nAssists: ${i.ast}\nFG%: ${i.fg}\nFloaters: ${i.flt}\nLayups: ${i.lay}\nComm: ${i.comm}\nMissed Asgn: ${i.ma}`;
+            navigator.clipboard.writeText(text).then(() => { alert("Stats Copied!"); });
+        }
+
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('nephew_v10') || "[]");
-            document.getElementById('h-list').innerHTML = list.map(i => `<div>${i.d}: Grade ${i.g} (${i.p} pts)</div>`).join('');
+            var list = JSON.parse(localStorage.getItem('nephew_paint_v1') || "[]");
+            document.getElementById('h-list').innerHTML = list.map((i, idx) => `
+                <div class="history-card">
+                    <button class="copy-btn" onclick="copyGame(${idx})">COPY</button>
+                    <div class="history-header">
+                        <span>${i.d} vs ${i.opp}</span>
+                        <span class="${i.wl === 'WIN' ? 'win' : 'loss'}">${i.wl} (${i.sc})</span>
+                    </div>
+                    <b>GRADE: ${i.g}</b> | ${i.p} PTS | FG: ${i.fg}<br>
+                    FLT: ${i.flt} | LAY: ${i.lay} | COMM: ${i.comm} | MA: ${i.ma}
+                </div>`).join('');
         }
 
         function reset() {
             data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, fta: 0 };
-            raw = 0; stack = [];
+            raw = 0; stack = []; winLoss = "N/A";
+            document.getElementById('opp').value = "";
+            document.getElementById('score').value = "";
+            document.getElementById('wl-toggle').innerText = "W/L: N/A";
             refresh();
         }
         showHistory();
