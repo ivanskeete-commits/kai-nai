@@ -43,14 +43,14 @@
     </div>
 
     <div class="focus-row">
-        <button class="btn-orange" onclick="handle('flt', 2, 14)">FLOATER MADE</button>
-        <button class="btn-orange" onclick="handle('lay', 2, 14)">LAY-UP MADE</button>
-        <button class="btn-blue" onclick="handle('comm', 0, 10)">DEF COMM</button>
+        <button class="btn-orange" onclick="handle('flt', 2, 13)">FLOATER MADE</button>
+        <button class="btn-orange" onclick="handle('lay', 2, 13)">LAY-UP MADE</button>
+        <button class="btn-blue" onclick="handle('comm', 0, 9)">DEF COMM</button>
     </div>
 
     <div class="focus-row">
-        <button class="small-btn" style="background:#222;" onclick="handle('flt_x', 0, 14)">FLOATER MISS</button>
-        <button class="small-btn" style="background:#222;" onclick="handle('lay_x', 0, 14)">LAY-UP MISS</button>
+        <button class="small-btn" style="background:#222;" onclick="handle('flt_x', 0, 13)">FLOATER MISS</button>
+        <button class="small-btn" style="background:#222;" onclick="handle('lay_x', 0, 13)">LAY-UP MISS</button>
         <button class="small-btn btn-red" onclick="handle('ma', 0, -20)">MISSED ASGN</button>
     </div>
 
@@ -76,7 +76,7 @@
     <div id="h-list" style="text-align: left; padding: 10px; font-size: 12px; color: #888;"></div>
 
     <script>
-        var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0 };
+        var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, fta: 0 };
         var raw = 0;
         var stack = [];
 
@@ -90,6 +90,7 @@
             if (['flt_x', 'lay_x', '2x', '3x'].includes(type)) { data.fga++; }
             if (type === '3m') { data.tpm++; data.tpa++; }
             if (type === '3x') { data.tpa++; }
+            if (type === 'ftm' || type === 'ftx') { data.fta++; }
             
             refresh();
         }
@@ -105,6 +106,7 @@
             if (['flt_x', 'lay_x', '2x', '3x'].includes(item.t)) { data.fga--; }
             if (item.t === '3m') { data.tpm--; data.tpa--; }
             if (item.t === '3x') { data.tpa--; }
+            if (item.t === 'ftm' || item.t === 'ftx') { data.fta--; }
             
             refresh();
         }
@@ -118,14 +120,13 @@
             document.getElementById('s-blk').innerText = data.blk || 0;
             document.getElementById('s-to').innerText = data.to;
 
-            var fta = data.ftm + data.ftx;
             var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
             var tpPct = data.tpa > 0 ? Math.round((data.tpm / data.tpa) * 100) : 0;
-            var ftPct = fta > 0 ? Math.round((data.ftm / fta) * 100) : 0;
+            var ftPct = data.fta > 0 ? Math.round((data.ftm / data.fta) * 100) : 0;
 
             document.getElementById('p-fg').innerText = `FG: ${fgPct}% (${data.fgm}/${data.fga})`;
             document.getElementById('p-3p').innerText = `3PT: ${tpPct}% (${data.tpm}/${data.tpa})`;
-            document.getElementById('p-ft').innerText = `FT: ${ftPct}% (${data.ftm}/${fta})`;
+            document.getElementById('p-ft').innerText = `FT: ${ftPct}% (${data.ftm}/${data.fta})`;
             
             var g = "D"; var col = "orange";
             if (raw >= 250) { g = "A+"; col = "#32d74b"; }
@@ -138,20 +139,20 @@
 
         function save() {
             var game = { d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts };
-            var list = JSON.parse(localStorage.getItem('nephew_v8') || "[]");
+            var list = JSON.parse(localStorage.getItem('nephew_v10') || "[]");
             list.unshift(game);
-            localStorage.setItem('nephew_v8', JSON.stringify(list));
+            localStorage.setItem('nephew_v10', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('nephew_v8') || "[]");
+            var list = JSON.parse(localStorage.getItem('nephew_v10') || "[]");
             document.getElementById('h-list').innerHTML = list.map(i => `<div>${i.d}: Grade ${i.g} (${i.p} pts)</div>`).join('');
         }
 
         function reset() {
-            data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0 };
+            data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, fta: 0 };
             raw = 0; stack = [];
             refresh();
         }
