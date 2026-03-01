@@ -6,32 +6,34 @@
         body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         .header { background: #1a1a1a; padding: 15px; border-bottom: 2px solid #333; }
         #grade { font-size: 70px; font-weight: bold; color: orange; margin: 0; line-height: 1; }
-        #pt-subtitle { font-size: 18px; color: #ff9500; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
+        #pt-subtitle { font-size: 14px; color: #ff9500; font-weight: bold; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .stat-bar { display: grid; grid-template-columns: repeat(6, 1fr); background: #222; margin: 10px; padding: 10px; border-radius: 10px; font-size: 9px; }
         .stat-val { font-size: 16px; font-weight: bold; display: block; color: #007aff; }
         #percent-display { grid-column: span 6; color: #34c759; font-weight: bold; padding-top: 8px; border-top: 1px solid #333; margin-top: 8px; font-size: 9px; display: flex; justify-content: space-around; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        button { padding: 20px; border-radius: 12px; border: none; color: white; font-weight: bold; font-size: 14px; background: #444; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+        button { padding: 18px 10px; border-radius: 12px; border: none; color: white; font-weight: bold; font-size: 13px; background: #444; cursor: pointer; }
         button:active { opacity: 0.5; transform: scale(0.95); }
         .btn-green { background: #34c759; }
         .btn-blue { background: #007aff; }
         .btn-red { background: #ff3b30; }
         .btn-purple { background: #5856d6; }
-        #paint-touch { width: calc(100% - 20px); height: 140px; margin: 10px; background: #ff9500; color: #000; font-size: 24px; font-weight: bold; }
+        .btn-orange { background: #ff9500; color: #000; }
+        
+        /* New Big Action Buttons */
+        .focus-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 10px; }
+        .focus-btn { height: 90px; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
+        .focus-btn span { font-size: 24px; }
+        .penalty-btn { width: calc(100% - 20px); margin: 0 10px 10px 10px; background: #8e0000; color: #fff; height: 60px; font-size: 16px; }
+
         .flash-white { background: #fff !important; color: #000 !important; }
         .history { text-align: left; padding: 15px; background: #111; margin-top: 20px; border-radius: 10px; }
         .history-item { border-bottom: 1px solid #222; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
         .history-content { flex-grow: 1; }
         .history-main { font-size: 13px; margin-bottom: 4px; padding-right: 15px; }
         .history-stats { font-size: 9px; color: #888; letter-spacing: 0.3px; margin-bottom: 2px; }
-        .history-shooting { font-size: 9px; color: #34c759; letter-spacing: 0.3px; margin-bottom: 2px; font-weight: 500; }
-        .history-result { font-size: 9px; font-weight: bold; letter-spacing: -0.1px; display: flex; justify-content: flex-start; gap: 6px; flex-wrap: wrap; align-items: center; }
-        .action-btns { display: flex; gap: 5px; }
-        .del-btn { background: #333; color: #ff3b30; padding: 10px; border-radius: 8px; font-size: 11px; }
-        .copy-btn { background: #333; color: #007aff; padding: 10px; border-radius: 8px; font-size: 11px; }
+        .history-result { font-size: 9px; font-weight: bold; display: flex; gap: 6px; flex-wrap: wrap; }
         
         .game-info-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; padding: 0 10px 10px 10px; }
-        #win-loss-btn { background: #333; font-size: 14px; border: 1px solid #444; height: 55px; }
         .input-box { background: #222; border: 1px solid #444; border-radius: 12px; color: #fff; font-size: 14px; font-weight: bold; text-align: center; height: 55px; width: 100%; box-sizing: border-box; }
     </style>
 </head>
@@ -39,7 +41,7 @@
 
     <div class="header">
         <div id="grade">D</div>
-        <div id="pt-subtitle">PAINT TOUCHES: 0</div>
+        <div id="pt-subtitle">FLOATER: 0 | LAYUP: 0 | COMM: 0</div>
     </div>
 
     <div class="stat-bar">
@@ -56,6 +58,22 @@
         </div>
     </div>
 
+    <div class="focus-grid">
+        <button class="focus-btn btn-orange" onclick="handle('flt', 0, 15)">
+            <span id="c-flt">0</span>FLOATER
+        </button>
+        <button class="focus-btn btn-orange" onclick="handle('lay', 0, 12)">
+            <span id="c-lay">0</span>LAY-UP
+        </button>
+        <button class="focus-btn btn-blue" onclick="handle('comm', 0, 20)">
+            <span id="c-comm">0</span>DEF COMM
+        </button>
+    </div>
+
+    <button class="penalty-btn" onclick="handle('ma', 0, -25)">
+        MISSED ASSIGNMENT (<span id="c-ma">0</span>)
+    </button>
+
     <div class="grid">
         <button class="btn-green" onclick="handle('2m', 2, 4)">2PT MADE</button>
         <button class="btn-gray" onclick="handle('2x', 0, -2)">2PT MISS</button>
@@ -70,15 +88,10 @@
         <button class="btn-red" style="grid-column: span 2;" onclick="handle('to', 0, -7)">TURNOVER</button>
     </div>
 
-    <button id="paint-touch" onclick="handle('pt', 0, 13)">
-        <span id="pt-num" style="font-size: 40px; display: block;">0</span>
-        PAINT TOUCHES
-    </button>
-
     <div class="game-info-grid">
-        <input type="text" id="opp-input" class="input-box" placeholder="OPPONENT" inputmode="text">
-        <button id="win-loss-btn" onclick="toggleWL()">W / L</button>
-        <input type="text" id="score-input" class="input-box" placeholder="SCORE" inputmode="text">
+        <input type="text" id="opp-input" class="input-box" placeholder="OPPONENT">
+        <button id="win-loss-btn" style="background:#333;" onclick="toggleWL()">W / L</button>
+        <input type="text" id="score-input" class="input-box" placeholder="SCORE">
     </div>
 
     <div style="display: flex; gap: 10px; padding: 10px;">
@@ -93,43 +106,28 @@
     </div>
 
     <script>
-        var data = { pt: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, pts: 0, ftm: 0, fta: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0 };
+        var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, ftm: 0, fta: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, flt: 0, lay: 0, comm: 0, ma: 0 };
         var raw = 0;
         var stack = [];
         var winLoss = "N/A";
 
         function toggleWL() {
             var btn = document.getElementById('win-loss-btn');
-            if (winLoss === "N/A" || winLoss === "LOSS") {
-                winLoss = "WIN";
-                btn.innerText = "WIN";
-                btn.style.background = "#34c759";
-                btn.style.color = "#000";
-            } else {
-                winLoss = "LOSS";
-                btn.innerText = "LOSS";
-                btn.style.background = "#ff3b30";
-                btn.style.color = "#fff";
-            }
+            if (winLoss !== "WIN") { winLoss = "WIN"; btn.innerText = "WIN"; btn.style.background = "#34c759"; btn.style.color = "#000"; }
+            else { winLoss = "LOSS"; btn.innerText = "LOSS"; btn.style.background = "#ff3b30"; btn.style.color = "#fff"; }
         }
 
         function handle(type, ptVal, gradeVal) {
             stack.push({t: type, p: ptVal, g: gradeVal});
             raw += gradeVal;
             data.pts += ptVal;
-            if (type === 'pt') data.pt++;
-            if (type === 'ast') data.ast++;
-            if (type === 'reb') data.reb++;
-            if (type === 'stl') data.stl++;
-            if (type === 'blk') data.blk++;
-            if (type === 'to') data.to++;
+            if (data.hasOwnProperty(type)) data[type]++;
             if (type === '2m') { data.fgm++; data.fga++; }
             if (type === '2x') { data.fga++; }
             if (type === '3m') { data.fgm++; data.fga++; data.tpm++; data.tpa++; }
             if (type === '3x') { data.fga++; data.tpa++; }
             if (type === 'ft-m') { data.ftm++; data.fta++; }
             if (type === 'ft-x') { data.fta++; }
-            if (type === 'pt') flash('paint-touch');
             refresh();
         }
 
@@ -138,161 +136,73 @@
             var item = stack.pop();
             raw -= item.g;
             data.pts -= item.p;
-            if (item.t === 'pt') data.pt--;
-            if (item.t === 'ast') data.ast--;
-            if (item.t === 'reb') data.reb--;
-            if (item.t === 'stl') data.stl--;
-            if (item.t === 'blk') data.blk--;
-            if (item.t === 'to') data.to--;
-            if (item.t === '2m') { data.fgm--; data.fga--; }
-            if (item.t === '2x') { data.fga--; }
-            if (item.t === '3m') { data.fgm--; data.fga--; data.tpm--; data.tpa--; }
-            if (item.t === '3x') { data.fga--; data.tpa--; }
-            if (item.t === 'ft-m') { data.ftm--; data.fta--; }
-            if (item.t === 'ft-x') { data.fta--; }
+            var t = item.t;
+            if (data.hasOwnProperty(t)) data[t]--;
+            if (t === '2m') { data.fgm--; data.fga--; }
+            if (t === '2x') { data.fga--; }
+            if (t === '3m') { data.fgm--; data.fga--; data.tpm--; data.tpa--; }
+            if (t === '3x') { data.fga--; data.tpa--; }
+            if (t === 'ft-m') { data.ftm--; data.fta--; }
+            if (t === 'ft-x') { data.fta--; }
             refresh();
         }
 
-        function flash(id) {
-            var el = document.getElementById(id);
-            if(el) {
-                el.classList.add('flash-white');
-                setTimeout(function(){ el.classList.remove('flash-white'); }, 100);
-            }
-        }
-
         function refresh() {
-            document.getElementById('pt-num').innerText = data.pt;
-            document.getElementById('pt-subtitle').innerText = "PAINT TOUCHES: " + data.pt;
+            document.getElementById('c-flt').innerText = data.flt;
+            document.getElementById('c-lay').innerText = data.lay;
+            document.getElementById('c-comm').innerText = data.comm;
+            document.getElementById('c-ma').innerText = data.ma;
+            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt} | LAY: ${data.lay} | COMM: ${data.comm}`;
+            
             document.getElementById('s-ast').innerText = data.ast;
             document.getElementById('s-reb').innerText = data.reb;
             document.getElementById('s-stl').innerText = data.stl;
             document.getElementById('s-blk').innerText = data.blk;
             document.getElementById('s-to').innerText = data.to;
             document.getElementById('s-pts').innerText = data.pts;
+            
             var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
             var tpPct = data.tpa > 0 ? Math.round((data.tpm / data.tpa) * 100) : 0;
             var ftPct = data.fta > 0 ? Math.round((data.ftm / data.fta) * 100) : 0;
-            document.getElementById('percent-display').innerHTML = `
-                <span>FG: ${fgPct}% (${data.fgm}/${data.fga})</span>
-                <span>3PT: ${tpPct}% (${data.tpm}/${data.tpa})</span>
-                <span>FT: ${ftPct}% (${data.ftm}/${data.fta})</span>
-            `;
-            var g = "D";
-            var col = "orange";
-            if (raw >= 300) { g = "A+"; col = "#32d74b"; }
-            else if (raw >= 275) { g = "A"; col = "#32d74b"; }
-            else if (raw >= 250) { g = "A-"; col = "#32d74b"; }
-            else if (raw >= 220) { g = "B+"; col = "orange"; }
-            else if (raw >= 190) { g = "B"; col = "orange"; }
-            else if (raw >= 160) { g = "B-"; col = "orange"; }
-            else if (raw >= 130) { g = "C+"; col = "orange"; }
+            document.getElementById('percent-display').innerHTML = `<span>FG: ${fgPct}%</span><span>3PT: ${tpPct}%</span><span>FT: ${ftPct}%</span>`;
+            
+            var g = "D"; var col = "orange";
+            if (raw >= 250) { g = "A+"; col = "#32d74b"; }
+            else if (raw >= 200) { g = "A"; col = "#32d74b"; }
+            else if (raw >= 150) { g = "B"; col = "orange"; }
             else if (raw >= 100) { g = "C"; col = "orange"; }
-            else if (raw >= 70) { g = "C-"; col = "orange"; }
             document.getElementById('grade').innerText = g;
             document.getElementById('grade').style.color = col;
         }
 
         function save() {
-            var scoreInput = document.getElementById('score-input').value.trim();
-            var oppInput = document.getElementById('opp-input').value.trim();
-            if (winLoss === "N/A" || scoreInput === "" || oppInput === "") {
-                alert("MISSING DATA: Please set Opponent, W/L, and Score before saving.");
-                return; 
-            }
-            if (raw === 0 && data.pts === 0) return;
-            
-            // FINAL DATE LOCK: Feb. 3, 2026
-            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            var now = new Date();
-            var monthStr = months[now.getMonth()];
-            var dayNum = now.getDate();
-            var yearNum = now.getFullYear();
-            var formattedDate = monthStr + ". " + dayNum + ", " + yearNum;
-
-            var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
-            var tpPct = data.tpa > 0 ? Math.round((data.tpm / data.tpa) * 100) : 0;
-            var ftPct = data.fta > 0 ? Math.round((data.ftm / data.fta) * 100) : 0;
-            var game = { 
-                id: Date.now(), 
-                d: formattedDate, 
-                g: document.getElementById('grade').innerText, 
-                p: data.pts, pt: data.pt, ast: data.ast, reb: data.reb, stl: data.stl, blk: data.blk, to: data.to,
-                fgh: fgPct, fga: data.fga, fgm: data.fgm,
-                tph: tpPct, tpa: data.tpa, tpm: data.tpm,
-                fth: ftPct, fta: data.fta, ftm: data.ftm,
-                wl: winLoss, score: scoreInput, opp: oppInput
-            };
-            var list = JSON.parse(localStorage.getItem('bball_logs') || "[]");
+            var opp = document.getElementById('opp-input').value;
+            if (!opp || winLoss === "N/A") { alert("Enter Opponent & Result"); return; }
+            var game = { id: Date.now(), d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts, ast: data.ast, reb: data.reb, stl: data.stl, blk: data.blk, to: data.to, flt: data.flt, lay: data.lay, comm: data.comm, ma: data.ma, wl: winLoss, opp: opp, score: document.getElementById('score-input').value };
+            var list = JSON.parse(localStorage.getItem('nephew_stats') || "[]");
             list.unshift(game);
-            localStorage.setItem('bball_logs', JSON.stringify(list));
+            localStorage.setItem('nephew_stats', JSON.stringify(list));
             reset();
             showHistory();
         }
 
-        function deleteGame(gameId) {
-            if (confirm("Delete this game?")) {
-                var list = JSON.parse(localStorage.getItem('bball_logs') || "[]");
-                var updatedList = list.filter(function(game) { return game.id !== gameId; });
-                localStorage.setItem('bball_logs', JSON.stringify(updatedList));
-                showHistory();
-            }
-        }
-
-        function copyGame(gameId, btn) {
-            var list = JSON.parse(localStorage.getItem('bball_logs') || "[]");
-            var game = list.find(g => g.id === gameId);
-            if (game) {
-                var text = `Date: ${game.d} vs ${game.opp} | Grade: ${game.g} | Paint Touches: ${game.pt} | PTS: ${game.p} | AST: ${game.ast} | REB: ${game.reb} | STL: ${game.stl} | BLK: ${game.blk} | TO: ${game.to} | FG: ${game.fgh}% (${game.fgm}/${game.fga}) | 3PT: ${game.tph}% (${game.tpm}/${game.tpa}) | FT: ${game.fth}% (${game.ftm}/${game.fta}) | Result: ${game.wl} (${game.score})`;
-                navigator.clipboard.writeText(text).then(() => {
-                    var oldText = btn.innerText;
-                    btn.innerText = "COPIED!";
-                    setTimeout(() => { btn.innerText = oldText; }, 1000);
-                });
-            }
-        }
-
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('bball_logs') || "[]");
-            var out = list.map(function(i){
-                var wlCol = i.wl === "WIN" ? "#32d74b" : (i.wl === "LOSS" ? "#ff3b30" : "#888");
-                return `
+            var list = JSON.parse(localStorage.getItem('nephew_stats') || "[]");
+            document.getElementById('h-list').innerHTML = list.map(i => `
                 <div class="history-item">
                     <div class="history-content">
-                        <div class="history-main">
-                            ${i.d} <b>vs ${i.opp}</b>
-                        </div>
-                        <div class="history-stats">
-                            ${i.p} PTS | ${i.ast} AST | ${i.reb} REB | ${i.stl} STL | ${i.blk} BLK | ${i.to} TO
-                        </div>
-                        <div class="history-shooting">
-                            FG: ${i.fgh}% (${i.fgm}/${i.fga}) | 3PT: ${i.tph}% (${i.tpm}/${i.tpa}) | FT: ${i.fth}% (${i.ftm}/${i.fta})
-                        </div>
-                        <div class="history-result">
-                            <span style="color:${wlCol};">RESULT: ${i.wl} (${i.score})</span>
-                            <span style="color:#888;">|</span>
-                            <span style="color:#32d74b; font-weight:bold;">Grade: ${i.g}</span>
-                            <span style="color:#888;">|</span>
-                            <span style="color:#ff9500;">${i.pt} Paint Touches</span>
-                        </div>
+                        <div class="history-main">${i.d} vs ${i.opp} [${i.wl}]</div>
+                        <div class="history-stats">${i.p} PTS | ${i.flt} FLT | ${i.lay} LAY | ${i.comm} COMM | ${i.ma} MA</div>
+                        <div class="history-result">Grade: <span style="color:#32d74b">${i.g}</span></div>
                     </div>
-                    <div class="action-btns">
-                        <button class="copy-btn" onclick="copyGame(${i.id}, this)">COPY</button>
-                        <button class="del-btn" onclick="deleteGame(${i.id})">X</button>
-                    </div>
-                </div>`;
-            }).join('');
-            document.getElementById('h-list').innerHTML = out || "No games yet.";
+                </div>`).join('') || "No games.";
         }
 
         function reset() {
-            data = { pt: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, pts: 0, ftm: 0, fta: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0 };
-            raw = 0; stack = []; winLoss = "N/A";
-            document.getElementById('win-loss-btn').innerText = "W / L";
-            document.getElementById('win-loss-btn').style.background = "#333";
-            document.getElementById('win-loss-btn').style.color = "#fff";
-            document.getElementById('score-input').value = "";
+            data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, ftm: 0, fta: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, flt: 0, lay: 0, comm: 0, ma: 0 };
+            raw = 0; stack = [];
             document.getElementById('opp-input').value = "";
+            document.getElementById('score-input').value = "";
             refresh();
         }
         showHistory();
