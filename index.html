@@ -3,21 +3,21 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
-        body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding-bottom: 80px; }
+        body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         .header { background: #1a1a1a; padding: 15px; border-bottom: 2px solid #333; }
         #grade { font-size: 70px; font-weight: bold; color: orange; margin: 0; line-height: 1; }
         #pt-subtitle { font-size: 14px; color: #ff9500; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
         .stat-bar { display: grid; grid-template-columns: repeat(6, 1fr); background: #222; margin: 10px; padding: 10px; border-radius: 10px; font-size: 9px; }
         .stat-val { font-size: 16px; font-weight: bold; display: block; color: #007aff; }
+        #percent-display { grid-column: span 6; color: #34c759; font-weight: bold; padding-top: 8px; border-top: 1px solid #333; margin-top: 8px; font-size: 10px; display: flex; justify-content: space-around; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
         button { padding: 18px 10px; border-radius: 12px; border: none; color: white; font-weight: bold; font-size: 13px; background: #444; }
         .btn-green { background: #34c759; }
         .btn-blue { background: #007aff; }
         .btn-red { background: #ff3b30; }
+        .btn-purple { background: #5856d6; }
         .btn-orange { background: #ff9500; color: #000; }
-        
-        /* Layout for the specific coaching buttons */
-        .focus-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 10px; }
+        .focus-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 10px; margin-bottom: 8px; }
         .small-btn { padding: 10px 5px; font-size: 10px; height: 50px; }
     </style>
 </head>
@@ -25,7 +25,7 @@
 
     <div class="header">
         <div id="grade">D</div>
-        <div id="pt-subtitle">FLT: 0 | LAY: 0 | COMM: 0</div>
+        <div id="pt-subtitle">FLT: 0/0 | LAY: 0/0 | COMM: 0</div>
     </div>
 
     <div class="stat-bar">
@@ -35,9 +35,14 @@
         <div>STL<span id="s-stl" class="stat-val">0</span></div>
         <div>BLK<span id="s-blk" class="stat-val">0</span></div>
         <div>TO<span id="s-to" class="stat-val">0</span></div>
+        <div id="percent-display">
+            <span id="p-fg">FG: 0% (0/0)</span>
+            <span id="p-3p">3PT: 0% (0/0)</span>
+            <span id="p-ft">FT: 0% (0/0)</span>
+        </div>
     </div>
 
-    <div class="focus-row" style="margin-bottom: 8px;">
+    <div class="focus-row">
         <button class="btn-orange" onclick="handle('flt', 2, 14)">FLOATER MADE</button>
         <button class="btn-orange" onclick="handle('lay', 2, 14)">LAY-UP MADE</button>
         <button class="btn-blue" onclick="handle('comm', 0, 10)">DEF COMM</button>
@@ -54,10 +59,12 @@
         <button onclick="handle('2x', 0, -2)">2PT MISS</button>
         <button class="btn-green" onclick="handle('3m', 3, 5)">3PT MADE</button>
         <button onclick="handle('3x', 0, -2)">3PT MISS</button>
+        <button class="btn-purple" onclick="handle('ftm', 1, 1)">FT MADE</button>
+        <button onclick="handle('ftx', 0, -2)">FT MISS</button>
         <button class="btn-blue" onclick="handle('ast', 0, 7)">ASSIST</button>
         <button class="btn-blue" onclick="handle('stl', 0, 6)">STEAL</button>
         <button class="btn-blue" onclick="handle('reb', 0, 4)">REBOUND</button>
-        <button class="btn-red" style="grid-column: span 1;" onclick="handle('to', 0, -7)">TURNOVER</button>
+        <button class="btn-red" onclick="handle('to', 0, -7)">TURNOVER</button>
     </div>
 
     <div style="display: flex; gap: 10px; padding: 10px;">
@@ -69,7 +76,7 @@
     <div id="h-list" style="text-align: left; padding: 10px; font-size: 12px; color: #888;"></div>
 
     <script>
-        var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, lay: 0, comm: 0, ma: 0, flt_x: 0, lay_x: 0 };
+        var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0 };
         var raw = 0;
         var stack = [];
 
@@ -78,6 +85,15 @@
             raw += gradeVal;
             data.pts += ptVal;
             if (data.hasOwnProperty(type)) data[type]++;
+            
+            // Percentage Logic
+            if (['flt', 'lay', '2m', '3m'].includes(type)) { data.fgm++; data.fga++; }
+            if (['flt_x', 'lay_x', '2x', '3x'].includes(type)) { data.fga++; }
+            if (type === '3m') { data.tpm++; data.tpa++; }
+            if (type === '3x') { data.tpa++; }
+            if (type === 'ftm') { data.fta = (data.fta || 0) + 1; }
+            if (type === 'ftx') { data.fta = (data.fta || 0) + 1; }
+            
             refresh();
         }
 
@@ -87,17 +103,34 @@
             raw -= item.g;
             data.pts -= item.p;
             if (data.hasOwnProperty(item.t)) data[item.t]--;
+            
+            if (['flt', 'lay', '2m', '3m'].includes(item.t)) { data.fgm--; data.fga--; }
+            if (['flt_x', 'lay_x', '2x', '3x'].includes(item.t)) { data.fga--; }
+            if (item.t === '3m') { data.tpm--; data.tpa--; }
+            if (item.t === '3x') { data.tpa--; }
+            if (item.t === 'ftm' || item.t === 'ftx') { data.fta--; }
+            
             refresh();
         }
 
         function refresh() {
-            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt} | LAY: ${data.lay} | COMM: ${data.comm}`;
+            document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt}/${data.flt + data.flt_x} | LAY: ${data.lay}/${data.lay + data.lay_x} | COMM: ${data.comm}`;
             document.getElementById('s-pts').innerText = data.pts;
             document.getElementById('s-ast').innerText = data.ast;
             document.getElementById('s-reb').innerText = data.reb;
             document.getElementById('s-stl').innerText = data.stl;
-            document.getElementById('s-blk').innerText = data.blk;
+            document.getElementById('s-blk').innerText = data.blk || 0;
             document.getElementById('s-to').innerText = data.to;
+
+            // Update Shooting Stats
+            var fta = data.ftm + data.ftx;
+            var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
+            var tpPct = data.tpa > 0 ? Math.round((data.tpm / data.tpa) * 100) : 0;
+            var ftPct = fta > 0 ? Math.round((data.ftm / fta) * 100) : 0;
+
+            document.getElementById('p-fg').innerText = `FG: ${fgPct}% (${data.fgm}/${data.fga})`;
+            document.getElementById('p-3p').innerText = `3PT: ${tpPct}% (${data.tpm}/${data.tpa})`;
+            document.getElementById('p-ft').innerText = `FT: ${ftPct}% (${data.ftm}/${fta})`;
             
             var g = "D"; var col = "orange";
             if (raw >= 250) { g = "A+"; col = "#32d74b"; }
@@ -109,21 +142,21 @@
         }
 
         function save() {
-            var game = { d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts, flt: data.flt, lay: data.lay, comm: data.comm };
-            var list = JSON.parse(localStorage.getItem('nephew_v6') || "[]");
+            var game = { d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts };
+            var list = JSON.parse(localStorage.getItem('nephew_v7') || "[]");
             list.unshift(game);
-            localStorage.setItem('nephew_v6', JSON.stringify(list));
+            localStorage.setItem('nephew_v7', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('nephew_v6') || "[]");
-            document.getElementById('h-list').innerHTML = list.map(i => `<div>${i.d}: Grade ${i.g} (${i.p} pts, ${i.flt} flt)</div>`).join('');
+            var list = JSON.parse(localStorage.getItem('nephew_v7') || "[]");
+            document.getElementById('h-list').innerHTML = list.map(i => `<div>${i.d}: Grade ${i.g} (${i.p} pts)</div>`).join('');
         }
 
         function reset() {
-            data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, lay: 0, comm: 0, ma: 0, flt_x: 0, lay_x: 0 };
+            data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0 };
             raw = 0; stack = [];
             refresh();
         }
