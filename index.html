@@ -19,19 +19,16 @@
         .btn-purple { background: #5856d6; }
         .btn-orange { background: #ff9500; color: #000; }
         
-        /* New Big Action Buttons */
+        /* Focus Buttons */
         .focus-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 10px; }
-        .focus-btn { height: 90px; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
-        .focus-btn span { font-size: 24px; }
-        .penalty-btn { width: calc(100% - 20px); margin: 0 10px 10px 10px; background: #8e0000; color: #fff; height: 60px; font-size: 16px; }
+        .focus-btn { height: 90px; font-size: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; text-transform: uppercase; }
+        .focus-btn span { font-size: 24px; display: block; }
+        .penalty-btn { width: calc(100% - 20px); margin: 0 10px 10px 10px; background: #8e0000; color: #fff; height: 60px; font-size: 16px; font-weight: bold; border-radius: 12px; border: none; }
 
-        .flash-white { background: #fff !important; color: #000 !important; }
         .history { text-align: left; padding: 15px; background: #111; margin-top: 20px; border-radius: 10px; }
-        .history-item { border-bottom: 1px solid #222; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
-        .history-content { flex-grow: 1; }
-        .history-main { font-size: 13px; margin-bottom: 4px; padding-right: 15px; }
-        .history-stats { font-size: 9px; color: #888; letter-spacing: 0.3px; margin-bottom: 2px; }
-        .history-result { font-size: 9px; font-weight: bold; display: flex; gap: 6px; flex-wrap: wrap; }
+        .history-item { border-bottom: 1px solid #222; padding: 10px 0; }
+        .history-main { font-size: 13px; margin-bottom: 4px; font-weight: bold; }
+        .history-stats { font-size: 10px; color: #888; margin-bottom: 2px; }
         
         .game-info-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; padding: 0 10px 10px 10px; }
         .input-box { background: #222; border: 1px solid #444; border-radius: 12px; color: #fff; font-size: 14px; font-weight: bold; text-align: center; height: 55px; width: 100%; box-sizing: border-box; }
@@ -41,7 +38,7 @@
 
     <div class="header">
         <div id="grade">D</div>
-        <div id="pt-subtitle">FLOATER: 0 | LAYUP: 0 | COMM: 0</div>
+        <div id="pt-subtitle">FLT: 0 | LAY: 0 | COMM: 0</div>
     </div>
 
     <div class="stat-bar">
@@ -59,28 +56,28 @@
     </div>
 
     <div class="focus-grid">
-        <button class="focus-btn btn-orange" onclick="handle('flt', 0, 15)">
+        <button class="focus-btn btn-orange" onclick="handle('flt', 0, 14)">
             <span id="c-flt">0</span>FLOATER
         </button>
-        <button class="focus-btn btn-orange" onclick="handle('lay', 0, 12)">
+        <button class="focus-btn btn-orange" onclick="handle('lay', 0, 14)">
             <span id="c-lay">0</span>LAY-UP
         </button>
-        <button class="focus-btn btn-blue" onclick="handle('comm', 0, 20)">
+        <button class="focus-btn btn-blue" onclick="handle('comm', 0, 14)">
             <span id="c-comm">0</span>DEF COMM
         </button>
     </div>
 
-    <button class="penalty-btn" onclick="handle('ma', 0, -25)">
+    <button class="penalty-btn" onclick="handle('ma', 0, -20)">
         MISSED ASSIGNMENT (<span id="c-ma">0</span>)
     </button>
 
     <div class="grid">
         <button class="btn-green" onclick="handle('2m', 2, 4)">2PT MADE</button>
-        <button class="btn-gray" onclick="handle('2x', 0, -2)">2PT MISS</button>
+        <button style="background:#444;" onclick="handle('2x', 0, -2)">2PT MISS</button>
         <button class="btn-green" onclick="handle('3m', 3, 5)">3PT MADE</button>
-        <button class="btn-gray" onclick="handle('3x', 0, -2)">3PT MISS</button>
+        <button style="background:#444;" onclick="handle('3x', 0, -2)">3PT MISS</button>
         <button class="btn-purple" onclick="handle('ft-m', 1, 1)">FT MADE</button>
-        <button class="btn-gray" onclick="handle('ft-x', 0, -2)">FT MISS</button>
+        <button style="background:#444;" onclick="handle('ft-x', 0, -2)">FT MISS</button>
         <button class="btn-blue" onclick="handle('ast', 0, 7)">ASSIST</button>
         <button class="btn-blue" onclick="handle('stl', 0, 6)">STEAL</button>
         <button class="btn-blue" onclick="handle('reb', 0, 4)">REBOUND</button>
@@ -90,7 +87,7 @@
 
     <div class="game-info-grid">
         <input type="text" id="opp-input" class="input-box" placeholder="OPPONENT">
-        <button id="win-loss-btn" style="background:#333;" onclick="toggleWL()">W / L</button>
+        <button id="win-loss-btn" style="background:#333; color: white; border-radius: 12px; border: 1px solid #444;" onclick="toggleWL()">W / L</button>
         <input type="text" id="score-input" class="input-box" placeholder="SCORE">
     </div>
 
@@ -153,7 +150,6 @@
             document.getElementById('c-comm').innerText = data.comm;
             document.getElementById('c-ma').innerText = data.ma;
             document.getElementById('pt-subtitle').innerText = `FLT: ${data.flt} | LAY: ${data.lay} | COMM: ${data.comm}`;
-            
             document.getElementById('s-ast').innerText = data.ast;
             document.getElementById('s-reb').innerText = data.reb;
             document.getElementById('s-stl').innerText = data.stl;
@@ -179,30 +175,30 @@
             var opp = document.getElementById('opp-input').value;
             if (!opp || winLoss === "N/A") { alert("Enter Opponent & Result"); return; }
             var game = { id: Date.now(), d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts, ast: data.ast, reb: data.reb, stl: data.stl, blk: data.blk, to: data.to, flt: data.flt, lay: data.lay, comm: data.comm, ma: data.ma, wl: winLoss, opp: opp, score: document.getElementById('score-input').value };
-            var list = JSON.parse(localStorage.getItem('nephew_stats') || "[]");
+            var list = JSON.parse(localStorage.getItem('nephew_stats_v2') || "[]");
             list.unshift(game);
-            localStorage.setItem('nephew_stats', JSON.stringify(list));
+            localStorage.setItem('nephew_stats_v2', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('nephew_stats') || "[]");
+            var list = JSON.parse(localStorage.getItem('nephew_stats_v2') || "[]");
             document.getElementById('h-list').innerHTML = list.map(i => `
                 <div class="history-item">
-                    <div class="history-content">
-                        <div class="history-main">${i.d} vs ${i.opp} [${i.wl}]</div>
-                        <div class="history-stats">${i.p} PTS | ${i.flt} FLT | ${i.lay} LAY | ${i.comm} COMM | ${i.ma} MA</div>
-                        <div class="history-result">Grade: <span style="color:#32d74b">${i.g}</span></div>
-                    </div>
-                </div>`).join('') || "No games.";
+                    <div class="history-main">${i.d} vs ${i.opp} [${i.wl}]</div>
+                    <div class="history-stats">${i.p} PTS | ${i.flt} FLT | ${i.lay} LAY | ${i.comm} COMM | ${i.ma} MA</div>
+                    <div style="font-weight:bold; color:#32d74b">Grade: ${i.g}</div>
+                </div>`).join('') || "No games tracked.";
         }
 
         function reset() {
             data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, ftm: 0, fta: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, flt: 0, lay: 0, comm: 0, ma: 0 };
-            raw = 0; stack = [];
+            raw = 0; stack = []; winLoss = "N/A";
             document.getElementById('opp-input').value = "";
             document.getElementById('score-input').value = "";
+            document.getElementById('win-loss-btn').style.background = "#333";
+            document.getElementById('win-loss-btn').innerText = "W / L";
             refresh();
         }
         showHistory();
