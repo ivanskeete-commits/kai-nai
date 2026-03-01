@@ -55,21 +55,21 @@
     </div>
 
     <div class="focus-row">
-        <button class="btn-orange" onclick="handle('flt', 2, 13)">FLOATER MADE</button>
-        <button class="btn-orange" onclick="handle('lay', 2, 13)">LAY-UP MADE</button>
+        <button class="btn-orange" onclick="handle('flt', 2, 15)">FLOATER MADE</button>
+        <button class="btn-orange" onclick="handle('lay', 2, 15)">LAY-UP MADE</button>
         <button class="btn-blue" onclick="handle('comm', 0, 9)">DEF COMM</button>
     </div>
 
     <div class="focus-row">
-        <button class="small-btn" style="background:#222;" onclick="handle('flt_x', 0, 13)">FLOATER MISS</button>
-        <button class="small-btn" style="background:#222;" onclick="handle('lay_x', 0, 13)">LAY-UP MISS</button>
+        <button class="small-btn" style="background:#222;" onclick="handle('flt_x', 0, 15)">FLOATER MISS</button>
+        <button class="small-btn" style="background:#222;" onclick="handle('lay_x', 0, 15)">LAY-UP MISS</button>
         <button class="small-btn btn-red" onclick="handle('ma', 0, -20)">MISSED ASGN</button>
     </div>
 
     <div class="grid">
-        <button class="btn-green" onclick="handle('2m', 2, 7)">OTHER 2PT MADE</button>
+        <button class="btn-green" onclick="handle('2m', 2, 10)">OTHER 2PT MADE</button>
         <button onclick="handle('2x', 0, -2)">2PT MISS</button>
-        <button class="btn-green" onclick="handle('3m', 3, 8)">3PT MADE</button>
+        <button class="btn-green" onclick="handle('3m', 3, 10)">3PT MADE</button>
         <button onclick="handle('3x', 0, -2)">3PT MISS</button>
         <button class="btn-purple" onclick="handle('ftm', 1, 2)">FT MADE</button>
         <button onclick="handle('ftx', 0, -2)">FT MISS</button>
@@ -182,24 +182,24 @@
                 lay: `${data.lay}/${data.lay + data.lay_x}`,
                 comm: data.comm, ma: data.ma
             };
-            var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v7') || "[]");
             list.unshift(game);
-            localStorage.setItem('season_stats_v6', JSON.stringify(list));
+            localStorage.setItem('season_stats_v7', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function deleteGame(index) {
             if (confirm("Are you sure you want to delete this game record?")) {
-                var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
+                var list = JSON.parse(localStorage.getItem('season_stats_v7') || "[]");
                 list.splice(index, 1);
-                localStorage.setItem('season_stats_v6', JSON.stringify(list));
+                localStorage.setItem('season_stats_v7', JSON.stringify(list));
                 showHistory();
             }
         }
 
         function copyGame(index) {
-            var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v7') || "[]");
             var i = list[index];
             var text = `${i.d} vs ${i.opp}\n` +
                        `PTS: ${i.pts}, AST: ${i.ast}, REB: ${i.reb}, STL: ${i.stl}, BLK: ${i.blk}, TO: ${i.to}\n` +
@@ -210,7 +210,7 @@
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('season_stats_v6') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v7') || "[]");
             document.getElementById('h-list').innerHTML = list.map((i, idx) => `
                 <div class="history-card">
                     <button class="copy-btn" onclick="copyGame(${idx})">COPY</button>
