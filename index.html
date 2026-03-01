@@ -49,8 +49,8 @@
     </div>
 
     <div class="focus-row">
-        <button class="small-btn" style="background:#222;" onclick="handle('flt_x', 0, 0)">FLOATER MISS</button>
-        <button class="small-btn" style="background:#222;" onclick="handle('lay_x', 0, 0)">LAY-UP MISS</button>
+        <button class="small-btn" style="background:#222;" onclick="handle('flt_x', 0, 14)">FLOATER MISS</button>
+        <button class="small-btn" style="background:#222;" onclick="handle('lay_x', 0, 14)">LAY-UP MISS</button>
         <button class="small-btn btn-red" onclick="handle('ma', 0, -20)">MISSED ASGN</button>
     </div>
 
@@ -86,13 +86,10 @@
             data.pts += ptVal;
             if (data.hasOwnProperty(type)) data[type]++;
             
-            // Percentage Logic
             if (['flt', 'lay', '2m', '3m'].includes(type)) { data.fgm++; data.fga++; }
             if (['flt_x', 'lay_x', '2x', '3x'].includes(type)) { data.fga++; }
             if (type === '3m') { data.tpm++; data.tpa++; }
             if (type === '3x') { data.tpa++; }
-            if (type === 'ftm') { data.fta = (data.fta || 0) + 1; }
-            if (type === 'ftx') { data.fta = (data.fta || 0) + 1; }
             
             refresh();
         }
@@ -108,7 +105,6 @@
             if (['flt_x', 'lay_x', '2x', '3x'].includes(item.t)) { data.fga--; }
             if (item.t === '3m') { data.tpm--; data.tpa--; }
             if (item.t === '3x') { data.tpa--; }
-            if (item.t === 'ftm' || item.t === 'ftx') { data.fta--; }
             
             refresh();
         }
@@ -122,7 +118,6 @@
             document.getElementById('s-blk').innerText = data.blk || 0;
             document.getElementById('s-to').innerText = data.to;
 
-            // Update Shooting Stats
             var fta = data.ftm + data.ftx;
             var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
             var tpPct = data.tpa > 0 ? Math.round((data.tpm / data.tpa) * 100) : 0;
@@ -143,15 +138,15 @@
 
         function save() {
             var game = { d: new Date().toLocaleDateString(), g: document.getElementById('grade').innerText, p: data.pts };
-            var list = JSON.parse(localStorage.getItem('nephew_v7') || "[]");
+            var list = JSON.parse(localStorage.getItem('nephew_v8') || "[]");
             list.unshift(game);
-            localStorage.setItem('nephew_v7', JSON.stringify(list));
+            localStorage.setItem('nephew_v8', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('nephew_v7') || "[]");
+            var list = JSON.parse(localStorage.getItem('nephew_v8') || "[]");
             document.getElementById('h-list').innerHTML = list.map(i => `<div>${i.d}: Grade ${i.g} (${i.p} pts)</div>`).join('');
         }
 
