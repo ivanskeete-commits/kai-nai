@@ -23,9 +23,12 @@
         .game-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 10px; }
         input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; width: 85%; }
         
-        .history-card { background: #1a1a1a; border-left: 4px solid orange; margin: 10px; padding: 12px; text-align: left; border-radius: 4px; font-size: 11px; position: relative; }
-        .history-header { font-weight: bold; color: #ff9500; margin-bottom: 5px; display: flex; justify-content: space-between; padding-right: 60px; }
-        .copy-btn { position: absolute; top: 10px; right: 10px; background: #333; font-size: 9px; padding: 5px 8px; border-radius: 5px; }
+        /* History Styling */
+        .history-card { background: #1a1a1a; border-left: 4px solid orange; margin: 10px; padding: 12px; text-align: left; border-radius: 4px; font-size: 12px; position: relative; line-height: 1.6; }
+        .h-date { font-weight: bold; color: #ff9500; font-size: 14px; }
+        .h-line { display: block; color: #ccc; }
+        .h-result { font-weight: bold; text-transform: uppercase; }
+        .copy-btn { position: absolute; top: 12px; right: 10px; background: #333; color: #fff; font-size: 9px; padding: 5px 8px; border-radius: 5px; border: none; }
         .win { color: #34c759; }
         .loss { color: #ff3b30; }
     </style>
@@ -155,46 +158,54 @@
         }
 
         function save() {
+            var fta = data.fta;
             var fgPct = data.fga > 0 ? Math.round((data.fgm / data.fga) * 100) : 0;
+            var tpPct = data.tpa > 0 ? Math.round((data.tpm / data.tpa) * 100) : 0;
+            var ftPct = fta > 0 ? Math.round((data.ftm / fta) * 100) : 0;
+
             var game = {
                 d: new Date().toLocaleDateString(),
-                opp: document.getElementById('opp').value || "N/A",
+                opp: document.getElementById('opp').value || "Unknown",
                 sc: document.getElementById('score').value || "N/A",
                 wl: winLoss,
                 g: document.getElementById('grade').innerText,
-                p: data.pts,
-                ast: data.ast,
+                pts: data.pts, ast: data.ast, reb: data.reb, stl: data.stl, blk: data.blk, to: data.to,
+                fg: `${fgPct}% (${data.fgm}/${data.fga})`,
+                tp: `${tpPct}% (${data.tpm}/${data.tpa})`,
+                ft: `${ftPct}% (${data.ftm}/${fta})`,
                 flt: `${data.flt}/${data.flt + data.flt_x}`,
                 lay: `${data.lay}/${data.lay + data.lay_x}`,
                 comm: data.comm,
-                ma: data.ma,
-                fg: `${fgPct}%`
+                ma: data.ma
             };
-            var list = JSON.parse(localStorage.getItem('nephew_paint_v1') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v1') || "[]");
             list.unshift(game);
-            localStorage.setItem('nephew_paint_v1', JSON.stringify(list));
+            localStorage.setItem('season_stats_v1', JSON.stringify(list));
             reset();
             showHistory();
         }
 
         function copyGame(index) {
-            var list = JSON.parse(localStorage.getItem('nephew_paint_v1') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v1') || "[]");
             var i = list[index];
-            var text = `Game Stats: ${i.d}\nOpponent: ${i.opp}\nResult: ${i.wl} (${i.sc})\nGrade: ${i.g}\nPoints: ${i.p}\nAssists: ${i.ast}\nFG%: ${i.fg}\nFloaters: ${i.flt}\nLayups: ${i.lay}\nComm: ${i.comm}\nMissed Asgn: ${i.ma}`;
+            var text = `${i.d} vs ${i.opp}\n` +
+                       `PTS: ${i.pts}, AST: ${i.ast}, REB: ${i.reb}, STL: ${i.stl}, BLK: ${i.blk}, TO: ${i.to}\n` +
+                       `FG: ${i.fg}, 3PT: ${i.tp}, FT: ${i.ft}\n` +
+                       `Layups: ${i.lay}, Floaters: ${i.flt}, Communication: ${i.comm}, Missed Asgn: ${i.ma}\n` +
+                       `Result: ${i.wl}, Score: ${i.sc}, Grade: ${i.g}`;
             navigator.clipboard.writeText(text).then(() => { alert("Stats Copied!"); });
         }
 
         function showHistory() {
-            var list = JSON.parse(localStorage.getItem('nephew_paint_v1') || "[]");
+            var list = JSON.parse(localStorage.getItem('season_stats_v1') || "[]");
             document.getElementById('h-list').innerHTML = list.map((i, idx) => `
                 <div class="history-card">
                     <button class="copy-btn" onclick="copyGame(${idx})">COPY</button>
-                    <div class="history-header">
-                        <span>${i.d} vs ${i.opp}</span>
-                        <span class="${i.wl === 'WIN' ? 'win' : 'loss'}">${i.wl} (${i.sc})</span>
-                    </div>
-                    <b>GRADE: ${i.g}</b> | ${i.p} PTS | FG: ${i.fg}<br>
-                    FLT: ${i.flt} | LAY: ${i.lay} | COMM: ${i.comm} | MA: ${i.ma}
+                    <span class="h-date">${i.d} vs ${i.opp}</span><br>
+                    <span class="h-line">PTS: ${i.pts}, AST: ${i.ast}, REB: ${i.reb}, STL: ${i.stl}, BLK: ${i.blk}, TO: ${i.to}</span>
+                    <span class="h-line">FG: ${i.fg} | 3PT: ${i.tp} | FT: ${i.ft}</span>
+                    <span class="h-line">Layups: ${i.lay}, Floaters: ${i.flt}, Comm: ${i.comm}, MA: ${i.ma}</span>
+                    <span class="h-result ${i.wl === 'WIN' ? 'win' : 'loss'}">${i.wl} | SCORE: ${i.sc} | GRADE: ${i.g}</span>
                 </div>`).join('');
         }
 
