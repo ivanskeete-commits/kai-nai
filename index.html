@@ -81,8 +81,8 @@
     </div>
 
     <div class="game-info">
-        <input type="text" id="opp" placeholder="VS">
-        <input type="text" id="score" placeholder="Score">
+        <input type="text" id="opp" placeholder="VS" oninput="silentSave()">
+        <input type="text" id="score" placeholder="Score" oninput="silentSave()">
         <button id="wl-toggle" style="padding:10px; font-size:10px;" onclick="toggleWL()">W/L: N/A</button>
         <button id="nephew-toggle" style="padding:10px; font-size:10px; background:#444;" onclick="toggleNephew()">PLAYER</button>
     </div>
@@ -99,20 +99,68 @@
         var data = { pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, to: 0, flt: 0, flt_x: 0, lay: 0, lay_x: 0, comm: 0, ma: 0, ftm: 0, ftx: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, fta: 0 };
         var raw = 0, stack = [], winLoss = "N/A", nephew = "PLAYER";
 
+        // AUTO-LOAD DATA ON STARTUP
+        window.onload = function() {
+            loadDraft();
+            showHistory();
+        };
+
+        function silentSave() {
+            var draft = {
+                data: data,
+                raw: raw,
+                stack: stack,
+                winLoss: winLoss,
+                nephew: nephew,
+                opp: document.getElementById('opp').value,
+                score: document.getElementById('score').value
+            };
+            localStorage.setItem('nephew_app_draft', JSON.stringify(draft));
+        }
+
+        function loadDraft() {
+            var saved = localStorage.getItem('nephew_app_draft');
+            if (saved) {
+                var draft = JSON.parse(saved);
+                data = draft.data;
+                raw = draft.raw;
+                stack = draft.stack;
+                winLoss = draft.winLoss;
+                nephew = draft.nephew;
+                document.getElementById('opp').value = draft.opp || "";
+                document.getElementById('score').value = draft.score || "";
+                
+                updateWLUI();
+                updateNephewUI();
+                refresh();
+            }
+        }
+
         function toggleWL() {
-            var btn = document.getElementById('wl-toggle');
             if (winLoss === "N/A") winLoss = "WIN";
             else if (winLoss === "WIN") winLoss = "LOSS";
             else winLoss = "N/A";
-            btn.innerText = "W/L: " + winLoss;
+            updateWLUI();
+            silentSave();
+        }
+
+        function updateWLUI() {
+            document.getElementById('wl-toggle').innerText = "W/L: " + winLoss;
         }
 
         function toggleNephew() {
+            if (nephew === "PLAYER") { nephew = "KAI"; }
+            else if (nephew === "KAI") { nephew = "NAI"; }
+            else { nephew = "PLAYER"; }
+            updateNephewUI();
+            silentSave();
+        }
+
+        function updateNephewUI() {
             var btn = document.getElementById('nephew-toggle');
-            if (nephew === "PLAYER") { nephew = "KAI"; btn.style.background = "#007aff"; }
-            else if (nephew === "KAI") { nephew = "NAI"; btn.style.background = "#007aff"; }
-            else { nephew = "PLAYER"; btn.style.background = "#444"; }
             btn.innerText = nephew;
+            if (nephew === "PLAYER") { btn.style.background = "#444"; }
+            else { btn.style.background = "#007aff"; }
         }
 
         function handle(type, ptVal, gradeVal) {
@@ -126,6 +174,7 @@
             if (type === '3x') { data.tpa++; }
             if (type === 'ftm' || type === 'ftx') { data.fta++; }
             refresh();
+            silentSave();
         }
 
         function undo() {
@@ -139,6 +188,7 @@
             if (item.t === '3x') { data.tpa--; }
             if (item.t === 'ftm' || item.t === 'ftx') { data.fta--; }
             refresh();
+            silentSave();
         }
 
         function refresh() {
@@ -210,6 +260,9 @@
             var list = JSON.parse(localStorage.getItem('nephew_stats_v10') || "[]");
             list.unshift(game);
             localStorage.setItem('nephew_stats_v10', JSON.stringify(list));
+            
+            // Clear draft and reset
+            localStorage.removeItem('nephew_app_draft');
             reset();
             showHistory();
         }
@@ -250,6 +303,7 @@
 
         function confirmReset() {
             if (confirm("Clear all current stats? (This will not affect saved history)")) {
+                localStorage.removeItem('nephew_app_draft');
                 reset();
             }
         }
@@ -264,7 +318,6 @@
             document.getElementById('nephew-toggle').style.background = "#444";
             refresh();
         }
-        showHistory();
     </script>
 </body>
 </html>
